@@ -1,29 +1,35 @@
-﻿#include <string>
-#include <vector>
-#include <set>
+#include <bits/stdc++.h>
+#define FIO cin.tie(0); cout.tie(0); ios::sync_with_stdio(0);
 using namespace std;
 
-vector<int> solution(vector<string> operations) {
-    vector<int> answer;
+/*
+* Platform : Programmers
+* Title : 모두 0으로 만들기
+* Rank : Level 3
+*/
 
-    set <string> s;
-    for (auto here : operations) {
-        char ope = here[0];
-        string num = here.substr(here.begin() + 2, here.size() - 2);
-        if (ope == 'I') s.insert(num);
-        else {
-            if (s.empty()) continue;
-            if (num == "1") s.erase(s.end() - 1);
-            else if (num == "-1") s.erase(s.begin());
-        }
+long long dfs(int here, int parent, long long& answer, vector <long long>& aa, vector<vector<int>>& adj) {
+    long long ret = 0;
+    for (auto next : adj[here]) {
+        if (next != parent) ret += dfs(next, here, answer, aa, adj);
     }
-
-    if (s.empty()) answer = { 0,0 };
-    else answer = { s.begin(), s.end() - 1 };
-    return answer;
+    aa[here] += ret;
+    answer += abs(aa[here]);
+    return aa[here];
 }
 
-int main() {
-    vector <string> operations = { "I 16", "I -5643", "D -1", "D 1", "D 1", "I 123", "D -1" };
-    solution(operations);
+long long solution(vector<int> a, vector<vector<int>> edges) {
+    long long answer = 0;
+    vector <long long> aa;
+    for (auto here : a) aa.push_back(here);
+
+    vector <vector<int>> adj(aa.size());
+    for (int i = 0; i < edges.size(); i++) {
+        adj[edges[i][0]].push_back(edges[i][1]);
+        adj[edges[i][1]].push_back(edges[i][0]);
+    }
+
+    long long ret = dfs(0, 0, answer, aa, adj);
+    answer = !ret ? answer : -1;
+    return answer;
 }
